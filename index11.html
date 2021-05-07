@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+  <head>
+    <title>1997-2017月温度热力图</title>
+    <style>
+      rect.bordered {
+        stroke: #A1A1A1;
+        stroke-width:1px;  
+      }
+
+      text.mono {
+        font-size: 6pt;
+        font-family: Consolas, courier;
+        fill: #000;
+      }
+
+      text.axis-workweek {
+        fill: #00FF;
+      }
+
+      text.axis-worktime {
+        fill: #ff00;
+      }
+    </style>
+    
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>  
+
+  </head>
+  
+  
+  <body>
+
+    <div id="temperatureHeatMap"></div>      
+   
+    <script type="text/javascript">
+    
+      // 定义Heatmap的位置、宽高、房间格子的边长等等与布局有关的变量
+      var margin = { top: 50, right: 0, bottom: 100, left: 150 },
+          
+          width = 1300 - margin.left - margin.right,        // Heatmap的宽度
+          height = 1200 - margin.top - margin.bottom,
+          
+          gridSize = Math.floor(width / 21),    // 房间格子大小，即去掉小数部分，width分成20份
+          gridInnerSize=gridSize-10,
+
+          legendElementWidth = gridSize * 2,    // 下部图例格子的长度，是房间格子边长的两倍
+          
+          buckets = 11,        // 一共9种颜色级别
+          colors = ["#5E4FA2","#3288BD","#66C2A5","#ABDDA4","#E6F598","#FFFFBF","#FEE08B","#FDAE61","#F46D43","#D53E4F","#9E0142"], 
+          
+          years = ["1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017"];
+
+                
+          // 读取 CSV 文件,房间内的人数存放于此文件中
+          d3.csv("https://raw.githubusercontent.com/Do7and/myattempt/main/preprocess_min_data.csv",              
+            
+            function(error, data) {                
+              console.log(data);
+
+              
+              // 设置roomHeatMap，svg
+              var svg = d3.select("#temperatureHeatMap").append("svg") // 选择“roomHeatMap”（就是div），加入一个svg，设置属性跟div一样大
+                  .attr("width", width + margin.left + margin.right)
+                  .attr("height", height + margin.top + margin.bottom)
+                  .append("g")    // 在svg内加入一个g（group组），并设置元素g的显示位置
+                  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                
+              // 行标题
+              var dayLabels = svg.selectAll(".nameLabel")
+                  .data(data)
+                  .enter()    // 为data中每一项创建一个".dayLabel"
+                  .append("text")    // 为days中每一项创建一的".dayLabel"添加文本，下面全是设置文本的属性
+                    .text(function (d, i) { return data[i].month; })
+                    .attr("x", 0)
+                    .attr("y", function (d, i) { return i * (gridSize/2)-55; })
+                    .style("text-anchor", "end")
+                    .attr("transform", "translate(-4," + gridSize  + ")")
+                    .attr("class", function (d, i) 
+                            { return ((i >= 0 && i <= 4) ? "nameLabel mono axis axis-workweek" : "nameLabel mono axis"); }
+                        );
+     
+              // 列标题
+              var timeLabels = svg.selectAll(".testLabel")
+                  .data(years)
+                  .enter().append("text")
+                    .text(function(d) { return d; })
+                    .attr("x", function(d, i) { return i * gridSize; })
+                    .attr("y", 0)
+                    .style("text-anchor", "end")
+                    .attr("transform", "translate(" + gridSize / 2 + ", -12)")
+                    .attr("class", function(d, i) { 
+                            return ( "testLabel mono axis"); }
+                         );
+              
+                // 网格数组,这里将二维数据转换为一维数组，一维数组方便于d3.js绑定
+                var personCountArray=[];
+                for (var i = 0; i < 12; i++){
+                    personCountArray[i*21] = parseInt(data[i].Y1997);
+                    personCountArray[i*21+1] = parseInt(data[i].Y1998);
+                    personCountArray[i*21+2] = parseInt(data[i].Y1999);
+                    personCountArray[i*21+3] = parseInt(data[i].Y2000);
+                    personCountArray[i*21+4] = parseInt(data[i].Y2001);
+                    personCountArray[i*21+5] = parseInt(data[i].Y2002);
+                    personCountArray[i*21+6] = parseInt(data[i].Y2003);
+                    personCountArray[i*21+7] = parseInt(data[i].Y2004);
+                    personCountArray[i*21+8] = parseInt(data[i].Y2005);
+                    personCountArray[i*21+9] = parseInt(data[i].Y2006);
+                    personCountArray[i*21+10] = parseInt(data[i].Y2007);
+                    personCountArray[i*21+11] = parseInt(data[i].Y2008);
+                    personCountArray[i*21+12] = parseInt(data[i].Y2009);
+                    personCountArray[i*21+13] = parseInt(data[i].Y2010);
+                    personCountArray[i*21+14] = parseInt(data[i].Y2011);
+                    personCountArray[i*21+15] = parseInt(data[i].Y2012);
+                    personCountArray[i*21+16] = parseInt(data[i].Y2013);
+                    personCountArray[i*21+17] = parseInt(data[i].Y2014);
+                    personCountArray[i*21+18] = parseInt(data[i].Y2015);
+                    personCountArray[i*21+19] = parseInt(data[i].Y2016);
+					personCountArray[i*21+20] = parseInt(data[i].Y2017);
+              }
+              console.log(personCountArray);
+              //绘制房间格子，一开始全部是白色
+              var heatMap = svg.selectAll(".preprocess_min_data")
+                  .data(personCountArray)
+                  .enter()        
+                  .append("rect")
+                  .attr("x", function(d, i){ return (i % 21)*gridSize;})
+                  .attr("y", function(d, i){ return parseInt(i / 21)*(gridSize);})
+                  .attr("rx", 6)
+                  .attr("ry", 6)
+                  .attr("class", "bordered")
+                  .attr("width", gridInnerSize)
+                  .attr("height", gridInnerSize)
+                  .style("fill", "#FFFFFF");
+
+              // 颜色比例尺
+              var colorScale = d3.scale.quantile()        // 按分位数取值，可使每个区域内元素个数相等
+                  .domain([0, buckets - 1, d3.max(personCountArray)])  // 定义域
+                  // domain([0, n, 数据的最大值]);
+                  .range(colors);    // 值域：是颜色数组，函数的返回值是代表某种颜色的字符串
+                
+              // duration(n) 在n毫秒内根据房间内人数为房间格子上色
+              heatMap.transition().duration(2000)
+                  .style("fill", function(d) { return colorScale(d); });
+                
+              // 鼠标停留在房间格子上时显示人数
+              heatMap.append("title").text(function(d) { return "房间内有 "+d+" 人"; });
+                  
+              
+              // 图例
+              var legend = svg.selectAll(".legend")
+                  //[0].concat(colorScale.quantiles())将数组[0]与含有８个元素的olorScale.quantiles()连接起来得到一个有９个元素的数组
+                  .data([0].concat(colorScale.quantiles()), function(d) {
+                   return d;
+                    })    
+                  .enter().append("g")
+                  .attr("class", "legend");
+    
+              legend.append("rect")
+                .attr("x", function(d, i) { return legendElementWidth * i; })
+                .attr("y", height+gridSize)
+                .attr("width", legendElementWidth)
+                .attr("height", gridSize/2)
+                .style("fill", function(d, i) { return colors[i]; });
+    
+              legend.append("text")
+                .attr("class", "mono")
+                .text(function(d) { 
+                  return ""+Math.round(d)+"人以上";
+                   })
+                .attr("x", function(d, i) { return legendElementWidth * i+20; })
+                .attr("y", height +gridSize+40);
+          });
+    </script>
+    
+  </body>
+</html>
