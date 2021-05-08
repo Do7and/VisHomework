@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <html>
   <head>
-    <title>1997-2017ÔÂÎÂ¶ÈÈÈÁ¦Í¼</title>
+    <title>1997-2017æœˆæ¸©åº¦çƒ­åŠ›å›¾</title>
     <style>
       rect.bordered {
         stroke: #A1A1A1;
-        stroke-width:1px;  
+        stroke-width:0px;  
       }
 
       text.mono {
-        font-size: 6pt;
-        font-family: Consolas, courier;
+        font-size: 10pt;
+        font-family: SimHei,Consolas, courier;
         fill: #000;
       }
 
@@ -20,8 +20,36 @@
       }
 
       text.axis-worktime {
-        fill: #ff00;
+        fill: #00FF;
       }
+	  #shangDiv{
+  width:1300px;height:1200px;
+  position:absolute;
+  z-index:3;
+}
+#zhongDiv{
+  width:1300px;height:1200px;
+  position:absolute;
+  z-index:2;
+}
+#xiaDiv{
+
+    width:1300px;height:1200px;
+    position:relative;
+    z-index:1;
+}   .btn{
+        margin: 0px 0px;
+        }
+        .content{
+            display: none;
+        }
+		.btn.active{
+            background-color: pink;
+        }
+        .content.show{
+            display:block;
+            
+        }
     </style>
     
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>  
@@ -31,147 +59,268 @@
   
   <body>
 
-    <div id="temperatureHeatMap"></div>      
-   
+	<p class="btn1">
+		<button class="btn active">æœ€ä½æ¸©</button>
+		<button class="btn">æœ€é«˜æ¸©</button>
+	</p>
+	
+
+
+	
+	<div id="shangDiv">
+		<div class="content show">
+			  <div id="temperatureHeatMapMIN"></div>    
+			 <input type="text" placeholder="é¡µé¢ä¸€å†…å®¹"/>
+		</div>
+
+		<div class="content">
+			  <div id="temperatureHeatMapMAX"></div> 
+			  <input type="text" placeholder="é¡µé¢äºŒå†…å®¹" />
+		</div>
+	</div>
+     
+	<div id="xiaDiv">
+		<div id="skyline"></div>
+	</div>
+	
     <script type="text/javascript">
     
-      // ¶¨ÒåHeatmapµÄÎ»ÖÃ¡¢¿í¸ß¡¢·¿¼ä¸ñ×ÓµÄ±ß³¤µÈµÈÓë²¼¾ÖÓĞ¹ØµÄ±äÁ¿
+      // å®šä¹‰Heatmapçš„ä½ç½®ã€å®½é«˜ã€æˆ¿é—´æ ¼å­çš„è¾¹é•¿ç­‰ç­‰ä¸å¸ƒå±€æœ‰å…³çš„å˜é‡
       var margin = { top: 50, right: 0, bottom: 100, left: 150 },
           
-          width = 1300 - margin.left - margin.right,        // HeatmapµÄ¿í¶È
+          width = 1300 - margin.left - margin.right,        // Heatmapçš„å®½åº¦
           height = 1200 - margin.top - margin.bottom,
           
-          gridSize = Math.floor(width / 21),    // ·¿¼ä¸ñ×Ó´óĞ¡£¬¼´È¥µôĞ¡Êı²¿·Ö£¬width·Ö³É20·İ
+          gridSize = Math.floor(width / 21),    // æˆ¿é—´æ ¼å­å¤§å°ï¼Œå³å»æ‰å°æ•°éƒ¨åˆ†ï¼Œwidthåˆ†æˆ20ä»½
           gridInnerSize=gridSize-10,
 
-          legendElementWidth = gridSize * 2,    // ÏÂ²¿Í¼Àı¸ñ×ÓµÄ³¤¶È£¬ÊÇ·¿¼ä¸ñ×Ó±ß³¤µÄÁ½±¶
+          legendElementWidth = gridSize * 1.8,    // ä¸‹éƒ¨å›¾ä¾‹æ ¼å­çš„é•¿åº¦ï¼Œæ˜¯æˆ¿é—´æ ¼å­è¾¹é•¿çš„ä¸¤å€
           
-          buckets = 11,        // Ò»¹²9ÖÖÑÕÉ«¼¶±ğ
+          buckets = 11,        // ä¸€å…±9ç§é¢œè‰²çº§åˆ«
           colors = ["#5E4FA2","#3288BD","#66C2A5","#ABDDA4","#E6F598","#FFFFBF","#FEE08B","#FDAE61","#F46D43","#D53E4F","#9E0142"], 
           
           years = ["1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017"];
 
-                
-          // ¶ÁÈ¡ CSV ÎÄ¼ş,·¿¼äÄÚµÄÈËÊı´æ·ÅÓÚ´ËÎÄ¼şÖĞ
-          d3.csv("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess_min_data.csv",              
-            
-            function(error, data) {                
-              console.log(data);
+           // è®¾ç½®roomHeatMapï¼Œsvg
+		  var svg = d3.select("#skyline").append("svg") // é€‰æ‹©â€œroomHeatMapâ€ï¼ˆå°±æ˜¯divï¼‰ï¼ŒåŠ å…¥ä¸€ä¸ªsvgï¼Œè®¾ç½®å±æ€§è·Ÿdivä¸€æ ·å¤§
+			  .attr("width", width + margin.left + margin.right)
+			  .attr("height", height + margin.top + margin.bottom)
+			  .append("g")    // åœ¨svgå†…åŠ å…¥ä¸€ä¸ªgï¼ˆgroupç»„ï¼‰ï¼Œå¹¶è®¾ç½®å…ƒç´ gçš„æ˜¾ç¤ºä½ç½®
+			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			
+          // è¯»å– CSV æ–‡ä»¶,æˆ¿é—´å†…çš„äººæ•°å­˜æ”¾äºæ­¤æ–‡ä»¶ä¸­
+           /*d3.csv("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess_min_data.csv",          
+            function(error, mindata) {                
+              console.log(mindata);
+			  return mindata
+			})*/
+			d3.csv("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess_min_data.csv",function (mindata) {
+    console.log(mindata);
+	d3.csv("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess_max_data.csv",function (maxdata) {
+    console.log(maxdata);
+	
 
-              
-              // ÉèÖÃroomHeatMap£¬svg
-              var svg = d3.select("#temperatureHeatMap").append("svg") // Ñ¡Ôñ¡°roomHeatMap¡±£¨¾ÍÊÇdiv£©£¬¼ÓÈëÒ»¸ösvg£¬ÉèÖÃÊôĞÔ¸údivÒ»Ñù´ó
-                  .attr("width", width + margin.left + margin.right)
-                  .attr("height", height + margin.top + margin.bottom)
-                  .append("g")    // ÔÚsvgÄÚ¼ÓÈëÒ»¸ög£¨group×é£©£¬²¢ÉèÖÃÔªËØgµÄÏÔÊ¾Î»ÖÃ
-                  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-                
-              // ĞĞ±êÌâ
-              var dayLabels = svg.selectAll(".nameLabel")
-                  .data(data)
-                  .enter()    // ÎªdataÖĞÃ¿Ò»Ïî´´½¨Ò»¸ö".dayLabel"
-                  .append("text")    // ÎªdaysÖĞÃ¿Ò»Ïî´´½¨Ò»µÄ".dayLabel"Ìí¼ÓÎÄ±¾£¬ÏÂÃæÈ«ÊÇÉèÖÃÎÄ±¾µÄÊôĞÔ
-                    .text(function (d, i) { return data[i].month; })
-                    .attr("x", 0)
-                    .attr("y", function (d, i) { return i * (gridSize/2)-55; })
-                    .style("text-anchor", "end")
-                    .attr("transform", "translate(-4," + gridSize  + ")")
-                    .attr("class", function (d, i) 
-                            { return ((i >= 0 && i <= 4) ? "nameLabel mono axis axis-workweek" : "nameLabel mono axis"); }
-                        );
-     
-              // ÁĞ±êÌâ
-              var timeLabels = svg.selectAll(".testLabel")
-                  .data(years)
-                  .enter().append("text")
-                    .text(function(d) { return d; })
-                    .attr("x", function(d, i) { return i * gridSize; })
-                    .attr("y", 0)
-                    .style("text-anchor", "end")
-                    .attr("transform", "translate(" + gridSize / 2 + ", -12)")
-                    .attr("class", function(d, i) { 
-                            return ( "testLabel mono axis"); }
-                         );
-              
-                // Íø¸ñÊı×é,ÕâÀï½«¶şÎ¬Êı¾İ×ª»»ÎªÒ»Î¬Êı×é£¬Ò»Î¬Êı×é·½±ãÓÚd3.js°ó¶¨
-                var personCountArray=[];
-                for (var i = 0; i < 12; i++){
-                    personCountArray[i*21] = parseInt(data[i].Y1997);
-                    personCountArray[i*21+1] = parseInt(data[i].Y1998);
-                    personCountArray[i*21+2] = parseInt(data[i].Y1999);
-                    personCountArray[i*21+3] = parseInt(data[i].Y2000);
-                    personCountArray[i*21+4] = parseInt(data[i].Y2001);
-                    personCountArray[i*21+5] = parseInt(data[i].Y2002);
-                    personCountArray[i*21+6] = parseInt(data[i].Y2003);
-                    personCountArray[i*21+7] = parseInt(data[i].Y2004);
-                    personCountArray[i*21+8] = parseInt(data[i].Y2005);
-                    personCountArray[i*21+9] = parseInt(data[i].Y2006);
-                    personCountArray[i*21+10] = parseInt(data[i].Y2007);
-                    personCountArray[i*21+11] = parseInt(data[i].Y2008);
-                    personCountArray[i*21+12] = parseInt(data[i].Y2009);
-                    personCountArray[i*21+13] = parseInt(data[i].Y2010);
-                    personCountArray[i*21+14] = parseInt(data[i].Y2011);
-                    personCountArray[i*21+15] = parseInt(data[i].Y2012);
-                    personCountArray[i*21+16] = parseInt(data[i].Y2013);
-                    personCountArray[i*21+17] = parseInt(data[i].Y2014);
-                    personCountArray[i*21+18] = parseInt(data[i].Y2015);
-                    personCountArray[i*21+19] = parseInt(data[i].Y2016);
-					personCountArray[i*21+20] = parseInt(data[i].Y2017);
-              }
-              console.log(personCountArray);
-              //»æÖÆ·¿¼ä¸ñ×Ó£¬Ò»¿ªÊ¼È«²¿ÊÇ°×É«
-              var heatMap = svg.selectAll(".preprocess_min_data")
-                  .data(personCountArray)
-                  .enter()        
-                  .append("rect")
-                  .attr("x", function(d, i){ return (i % 21)*gridSize;})
-                  .attr("y", function(d, i){ return parseInt(i / 21)*(gridSize);})
-                  .attr("rx", 6)
-                  .attr("ry", 6)
-                  .attr("class", "bordered")
-                  .attr("width", gridInnerSize)
-                  .attr("height", gridInnerSize)
-                  .style("fill", "#FFFFFF");
+		  // è¡Œæ ‡é¢˜
+		  var dayLabels = svg.selectAll(".nameLabel")
+			  .data(mindata)
+			  .enter()    // ä¸ºdataä¸­æ¯ä¸€é¡¹åˆ›å»ºä¸€ä¸ª".dayLabel"
+			  .append("text")    // ä¸ºdaysä¸­æ¯ä¸€é¡¹åˆ›å»ºä¸€çš„".dayLabel"æ·»åŠ æ–‡æœ¬ï¼Œä¸‹é¢å…¨æ˜¯è®¾ç½®æ–‡æœ¬çš„å±æ€§
+				.text(function (d, i) { return mindata[i].month; })
+				.attr("x", 0)
+				.attr("y", function (d, i) { return i * (gridSize)-30; })
+				.style("text-anchor", "end")
+				.attr("transform", "translate(-4," + gridSize  + ")")
+				.attr("class", function (d, i) 
+						{ return ((i >= 0 && i <= 4) ? "nameLabel mono axis axis-workweek" : "nameLabel mono axis axis-worktime"); }
+					);
+ 
+		  // åˆ—æ ‡é¢˜
+		  var timeLabels = svg.selectAll(".testLabel")
+			  .data(years)
+			  .enter().append("text")
+				.text(function(d) { return d; })
+				.attr("x", function(d, i) { return i * gridSize; })
+				.attr("y", 0)
+				.style("text-anchor", "end")
+				.attr("transform", "translate(" + gridSize / 2 + ", -12)")
+				.attr("class", function(d, i) { 
+						return ( "testLabel mono axis"); }
+					 );
+		  
+			// ç½‘æ ¼æ•°ç»„,è¿™é‡Œå°†äºŒç»´æ•°æ®è½¬æ¢ä¸ºä¸€ç»´æ•°ç»„ï¼Œä¸€ç»´æ•°ç»„æ–¹ä¾¿äºd3.jsç»‘å®š
+			var minT = [];
+			var maxT = [];
+			for (var i = 0; i < 12; i++){
+				minT[i*21] = parseInt(mindata[i].Y1997);
+				minT[i*21+1] = parseInt(mindata[i].Y1998);
+				minT[i*21+2] = parseInt(mindata[i].Y1999);
+				minT[i*21+3] = parseInt(mindata[i].Y2000);
+				minT[i*21+4] = parseInt(mindata[i].Y2001);
+				minT[i*21+5] = parseInt(mindata[i].Y2002);
+				minT[i*21+6] = parseInt(mindata[i].Y2003);
+				minT[i*21+7] = parseInt(mindata[i].Y2004);
+				minT[i*21+8] = parseInt(mindata[i].Y2005);
+				minT[i*21+9] = parseInt(mindata[i].Y2006);
+				minT[i*21+10] = parseInt(mindata[i].Y2007);
+				minT[i*21+11] = parseInt(mindata[i].Y2008);
+				minT[i*21+12] = parseInt(mindata[i].Y2009);
+				minT[i*21+13] = parseInt(mindata[i].Y2010);
+				minT[i*21+14] = parseInt(mindata[i].Y2011);
+				minT[i*21+15] = parseInt(mindata[i].Y2012);
+				minT[i*21+16] = parseInt(mindata[i].Y2013);
+				minT[i*21+17] = parseInt(mindata[i].Y2014);
+				minT[i*21+18] = parseInt(mindata[i].Y2015);
+				minT[i*21+19] = parseInt(mindata[i].Y2016);
+				minT[i*21+20] = parseInt(mindata[i].Y2017);
+				maxT[i*21] = parseInt(maxdata[i].Y1997);
+				maxT[i*21+1] = parseInt(maxdata[i].Y1998);
+				maxT[i*21+2] = parseInt(maxdata[i].Y1999);
+				maxT[i*21+3] = parseInt(maxdata[i].Y2000);
+				maxT[i*21+4] = parseInt(maxdata[i].Y2001);
+				maxT[i*21+5] = parseInt(maxdata[i].Y2002);
+				maxT[i*21+6] = parseInt(maxdata[i].Y2003);
+				maxT[i*21+7] = parseInt(maxdata[i].Y2004);
+				maxT[i*21+8] = parseInt(maxdata[i].Y2005);
+				maxT[i*21+9] = parseInt(maxdata[i].Y2006);
+				maxT[i*21+10] = parseInt(maxdata[i].Y2007);
+				maxT[i*21+11] = parseInt(maxdata[i].Y2008);
+				maxT[i*21+12] = parseInt(maxdata[i].Y2009);
+				maxT[i*21+13] = parseInt(maxdata[i].Y2010);
+				maxT[i*21+14] = parseInt(maxdata[i].Y2011);
+				maxT[i*21+15] = parseInt(maxdata[i].Y2012);
+				maxT[i*21+16] = parseInt(maxdata[i].Y2013);
+				maxT[i*21+17] = parseInt(maxdata[i].Y2014);
+				maxT[i*21+18] = parseInt(maxdata[i].Y2015);
+				maxT[i*21+19] = parseInt(maxdata[i].Y2016);
+				maxT[i*21+20] = parseInt(maxdata[i].Y2017);
+		  };
+		
+		  
+		  //console.log(minT);
+		  //ç»˜åˆ¶æˆ¿é—´æ ¼å­ï¼Œä¸€å¼€å§‹å…¨éƒ¨æ˜¯ç™½è‰²
+		  var minsvg= d3.select("#temperatureHeatMapMIN").append("svg") // 
+			  .attr("width", width + margin.left + margin.right)
+			  .attr("height", height + margin.top + margin.bottom)
+			  .append("g")    // åœ¨svgå†…åŠ å…¥ä¸€ä¸ªgï¼ˆgroupç»„ï¼‰ï¼Œå¹¶è®¾ç½®å…ƒç´ gçš„æ˜¾ç¤ºä½ç½®
+			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-              // ÑÕÉ«±ÈÀı³ß
-              var colorScale = d3.scale.quantile()        // °´·ÖÎ»ÊıÈ¡Öµ£¬¿ÉÊ¹Ã¿¸öÇøÓòÄÚÔªËØ¸öÊıÏàµÈ
-                  .domain([0, buckets - 1, d3.max(personCountArray)])  // ¶¨ÒåÓò
-                  // domain([0, n, Êı¾İµÄ×î´óÖµ]);
-                  .range(colors);    // ÖµÓò£ºÊÇÑÕÉ«Êı×é£¬º¯ÊıµÄ·µ»ØÖµÊÇ´ú±íÄ³ÖÖÑÕÉ«µÄ×Ö·û´®
-                
-              // duration(n) ÔÚnºÁÃëÄÚ¸ù¾İ·¿¼äÄÚÈËÊıÎª·¿¼ä¸ñ×ÓÉÏÉ«
-              heatMap.transition().duration(2000)
-                  .style("fill", function(d) { return colorScale(d); });
-                
-              // Êó±êÍ£ÁôÔÚ·¿¼ä¸ñ×ÓÉÏÊ±ÏÔÊ¾ÈËÊı
-              heatMap.append("title").text(function(d) { return "·¿¼äÄÚÓĞ "+d+" ÈË"; });
-                  
-              
-              // Í¼Àı
-              var legend = svg.selectAll(".legend")
-                  //[0].concat(colorScale.quantiles())½«Êı×é[0]Óëº¬ÓĞ£¸¸öÔªËØµÄolorScale.quantiles()Á¬½ÓÆğÀ´µÃµ½Ò»¸öÓĞ£¹¸öÔªËØµÄÊı×é
-                  .data([0].concat(colorScale.quantiles()), function(d) {
-                   return d;
-                    })    
-                  .enter().append("g")
-                  .attr("class", "legend");
-    
-              legend.append("rect")
-                .attr("x", function(d, i) { return legendElementWidth * i; })
-                .attr("y", height+gridSize)
-                .attr("width", legendElementWidth)
-                .attr("height", gridSize/2)
-                .style("fill", function(d, i) { return colors[i]; });
-    
-              legend.append("text")
-                .attr("class", "mono")
-                .text(function(d) { 
-                  return ""+Math.round(d)+"ÈËÒÔÉÏ";
-                   })
-                .attr("x", function(d, i) { return legendElementWidth * i+20; })
-                .attr("y", height +gridSize+40);
-          });
+		  var minheatMap = minsvg.selectAll(".preprocess_min_data")
+			  .data(minT)
+			  .enter()        
+			  .append("rect")
+			  .attr("x", function(d, i){ return (i % 21)*gridSize;})
+			  .attr("y", function(d, i){ return parseInt(i / 21)*(gridSize);})
+			  .attr("rx", 2)
+			  .attr("ry", 2)
+			  .attr("class", "bordered")
+			  .attr("width", gridInnerSize)
+			  .attr("height", gridInnerSize)
+			  .style("fill", "#FFFFFF");
+
+		  var maxsvg= d3.select("#temperatureHeatMapMAX").append("svg") // 
+			  .attr("width", width + margin.left + margin.right)
+			  .attr("height", height + margin.top + margin.bottom)
+			  .append("g")    // åœ¨svgå†…åŠ å…¥ä¸€ä¸ªgï¼ˆgroupç»„ï¼‰ï¼Œå¹¶è®¾ç½®å…ƒç´ gçš„æ˜¾ç¤ºä½ç½®
+			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		  var maxheatMap = maxsvg.selectAll(".preprocess_min_data")
+			  .data(maxT)
+			  .enter()        
+			  .append("rect")
+			  .attr("x", function(d, i){ return (i % 21)*gridSize;})
+			  .attr("y", function(d, i){ return parseInt(i / 21)*(gridSize);})
+			  .attr("rx", 2)
+			  .attr("ry", 2)
+			  .attr("class", "bordered")
+			  .attr("width", gridInnerSize)
+			  .attr("height", gridInnerSize)
+			  .style("fill", "#FFFFFF");
+
+
+
+		  // é¢œè‰²æ¯”ä¾‹å°º
+		  var colorScale = d3.scale.quantile()        // æŒ‰åˆ†ä½æ•°å–å€¼ï¼Œå¯ä½¿æ¯ä¸ªåŒºåŸŸå†…å…ƒç´ ä¸ªæ•°ç›¸ç­‰
+			  .domain([d3.min(minT),d3.max(maxT)])  // å®šä¹‰åŸŸ
+			  // domain([0, n, æ•°æ®çš„æœ€å¤§å€¼]);
+			  .range(colors);    // å€¼åŸŸï¼šæ˜¯é¢œè‰²æ•°ç»„ï¼Œå‡½æ•°çš„è¿”å›å€¼æ˜¯ä»£è¡¨æŸç§é¢œè‰²çš„å­—ç¬¦ä¸²
+			
+		  // duration(n) åœ¨næ¯«ç§’å†…æ ¹æ®æˆ¿é—´å†…äººæ•°ä¸ºæˆ¿é—´æ ¼å­ä¸Šè‰²
+		  minheatMap.transition().duration(2000)
+			  .style("fill", function(d) { 
+				  if (isNaN(d)){
+					//console.log("NAN")
+					return "#FFFFFF";
+				  }
+				  //console.log("NONAN")
+				  return colorScale(d);
+			  });
+
+
+			 // duration(n) åœ¨næ¯«ç§’å†…æ ¹æ®æˆ¿é—´å†…äººæ•°ä¸ºæˆ¿é—´æ ¼å­ä¸Šè‰²
+		  maxheatMap.transition().duration(2000)
+			  .style("fill", function(d) { 
+				  if (isNaN(d)){
+					//console.log("NAN")
+					return "#FFFFFF";
+				  }
+				  //console.log("NONAN")
+				  return colorScale(d);
+			  });
+			
+		  // é¼ æ ‡åœç•™åœ¨æˆ¿é—´æ ¼å­ä¸Šæ—¶æ˜¾ç¤ºäººæ•°
+		  minheatMap.append("title").text(function(d,i) { return (i % 21+1997)+"å¹´"+(parseInt(i / 21)+1)+"æœˆæœ€ä½æ°”æ¸©ä¸º"+d+"â„ƒ"; });
+			// é¼ æ ‡åœç•™åœ¨æˆ¿é—´æ ¼å­ä¸Šæ—¶æ˜¾ç¤ºäººæ•°
+		  maxheatMap.append("title").text(function(d,i) { return (i % 21+1997)+"å¹´"+(parseInt(i / 21)+1)+"æœˆæœ€é«˜æ°”æ¸©ä¸º"+d+"â„ƒ"; });
+			  
+		  
+		  // å›¾ä¾‹
+		  var legend = svg.selectAll(".legend")
+			  //[0].concat(colorScale.quantiles())å°†æ•°ç»„[0]ä¸å«æœ‰ï¼˜ä¸ªå…ƒç´ çš„olorScale.quantiles()è¿æ¥èµ·æ¥å¾—åˆ°ä¸€ä¸ªæœ‰ï¼™ä¸ªå…ƒç´ çš„æ•°ç»„
+			  .data([0].concat(colorScale.quantiles()), function(d) {
+			   return d;
+				})    
+			  .enter().append("g")
+			  .attr("class", "legend");
+
+		  legend.append("rect")
+			.attr("x", function(d, i) { return legendElementWidth * i; })
+			.attr("y", 12 * gridSize+15)
+			.attr("width", legendElementWidth)
+			.attr("height", gridSize/2)
+			.style("fill", function(d, i) { return colors[i]; });
+
+		  legend.append("text")
+			.attr("class", "mono")
+			.text(function(d) { 
+			  return ""+Math.round(d)+"â„ƒ";
+			   })
+			.attr("x", function(d, i) { return legendElementWidth * i+20; })
+			.attr("y", 13 * gridSize+30);
+	});
+	});
     </script>
-    
+    <script>
+ã€€ã€€ã€€ã€€ã€€//è·å–é¡µé¢çš„æ¯ä¸ªæŒ‰é’®
+        var btns = document.getElementsByClassName("btn")
+ã€€ã€€ã€€ã€€ã€€//è·å–å†…å®¹ç›’å­
+        var contents = document.getElementsByClassName("content")
+
+ã€€ã€€ã€€ã€€ã€€//éå†æ¯ä¸ªæŒ‰é’®ä¸ºå…¶æ·»åŠ ç‚¹å‡»äº‹ä»¶
+        for(var i=0;i<btns.length;i++){
+            btns[i].index = i;
+            btns[i].onclick = function(){
+ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€//å¯¹å½“å‰ç‚¹å‡»çš„æŒ‰é’®èµ‹äºˆactiveç±»ååŠæ˜¾ç¤ºå½“å‰æŒ‰é’®å¯¹åº”çš„å†…å®¹
+                for(var j=0;j<btns.length;j++){
+                    btns[j].className = btns[j].className.replace(' active', '').trim();
+                    contents[j].className = contents[j].className.replace(' show', '').trim();
+                }
+                this.className = this.className + ' active';
+                contents[this.index].className = contents[this.index].className + ' show';
+            };
+
+        }
+
+
+    </script>
   </body>
 </html>
