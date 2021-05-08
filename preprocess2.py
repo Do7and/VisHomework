@@ -20,7 +20,7 @@ for index, row in csv_data.iterrows():
 
 	else:
 		mincontent[key].append(tmin)
-		mincontent[key].append(tmax)
+		maxcontent[key].append(tmax)
 print(mincontent)
 
 csvfile = open('preprocess2_min_data.csv', 'w',newline='')
