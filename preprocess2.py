@@ -14,7 +14,7 @@ for index, row in csv_data.iterrows():
 		continue
 	tmin = int(row["min_temperature"])
 	tmax = int(row["max_temperature"])
-	key = str((year-2008)*12 + mon)
+	key = str((year-2008)*12 + mon-1)
 	
 	mincontent.append([key,day,tmin])
 	maxcontent.append([key,day,tmax])
