@@ -3,8 +3,9 @@ import csv
 
 csv_data = pd.read_csv('temperature_daily.csv')  
 print("Done1")
-mincontent = dict()
-maxcontent = dict()
+headrow = ["yearmon","day","temperature"]
+mincontent = []
+maxcontent = []
 nowyr = None
 nowmon = None
 for index, row in csv_data.iterrows():
@@ -13,24 +14,20 @@ for index, row in csv_data.iterrows():
 		continue
 	tmin = int(row["min_temperature"])
 	tmax = int(row["max_temperature"])
-	key = str(year) +"-"+ str(mon)
-	if key not in mincontent:
-		mincontent.update({key:[tmin]})
-		maxcontent.update({key:[tmax]})
-
-	else:
-		mincontent[key].append(tmin)
-		maxcontent[key].append(tmax)
+	key = str((year-2008)*12 + mon)
+	
+	mincontent.append([key,day,tmin])
+	maxcontent.append([key,day,tmax])
 print(mincontent)
 
 csvfile = open('preprocess2_min_data.csv', 'w',newline='')
 writer = csv.writer(csvfile)
-for k in mincontent:
-	writer.writerow(map(str,mincontent[k]))
+writer.writerow(headrow)
+writer.writerows(mincontent)
 csvfile.close()
 
 csvfile = open('preprocess2_max_data.csv', 'w',newline='')
 writer = csv.writer(csvfile)
-for k in maxcontent:
-	writer.writerow(map(str,maxcontent[k]))
+writer.writerow(headrow)
+writer.writerows(maxcontent)
 csvfile.close()

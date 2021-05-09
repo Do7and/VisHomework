@@ -2,7 +2,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <html>
   <head>
-    <title>1997-2017ÔÂÎÂ¶ÈÈÈÁ¦Í¼</title>
+    <title>1997-2017æœˆæ¸©åº¦çƒ­åŠ›å›¾</title>
     <style>
       rect.bordered {
         stroke: #A1A1A1;
@@ -60,8 +60,8 @@
   <body>
 
 	<p class="btn1">
-		<button class="btn active">×îµÍÎÂ</button>
-		<button class="btn">×î¸ßÎÂ</button>
+		<button class="btn active">æœ€ä½Žæ¸©</button>
+		<button class="btn">æœ€é«˜æ¸©</button>
 	</p>
 	
 
@@ -70,12 +70,12 @@
 	<div id="shangDiv">
 		<div class="content show">
 			  <div id="temperatureHeatMapMIN"></div>    
-			 <input type="text" placeholder="Ò³ÃæÒ»ÄÚÈÝ"/>
+			 <input type="text" placeholder="é¡µé¢ä¸€å†…å®¹"/>
 		</div>
 
 		<div class="content">
 			  <div id="temperatureHeatMapMAX"></div> 
-			  <input type="text" placeholder="Ò³Ãæ¶þÄÚÈÝ" />
+			  <input type="text" placeholder="é¡µé¢äºŒå†…å®¹" />
 		</div>
 	</div>
      
@@ -85,47 +85,61 @@
 	
     <script type="text/javascript">
     
-      // ¶¨ÒåHeatmapµÄÎ»ÖÃ¡¢¿í¸ß¡¢·¿¼ä¸ñ×ÓµÄ±ß³¤µÈµÈÓë²¼¾ÖÓÐ¹ØµÄ±äÁ¿
+      // å®šä¹‰Heatmapçš„ä½ç½®ã€å®½é«˜ã€æˆ¿é—´æ ¼å­çš„è¾¹é•¿ç­‰ç­‰ä¸Žå¸ƒå±€æœ‰å…³çš„å˜é‡
       var margin = { top: 50, right: 0, bottom: 100, left: 150 },
           
-          width = 1300 - margin.left - margin.right,        // HeatmapµÄ¿í¶È
+          width = 1300 - margin.left - margin.right,        // Heatmapçš„å®½åº¦
           height = 1200 - margin.top - margin.bottom,
           
-          gridSize = Math.floor(width / 10),    // ·¿¼ä¸ñ×Ó´óÐ¡£¬¼´È¥µôÐ¡Êý²¿·Ö£¬width·Ö³É20·Ý
+          gridSize = Math.floor(width / 10),    // æˆ¿é—´æ ¼å­å¤§å°ï¼Œå³åŽ»æŽ‰å°æ•°éƒ¨åˆ†ï¼Œwidthåˆ†æˆ20ä»½
           gridInnerSize=gridSize-10,
 
-          legendElementWidth = gridSize * 1.8,    // ÏÂ²¿Í¼Àý¸ñ×ÓµÄ³¤¶È£¬ÊÇ·¿¼ä¸ñ×Ó±ß³¤µÄÁ½±¶
+          legendElementWidth = gridSize * 1.8,    // ä¸‹éƒ¨å›¾ä¾‹æ ¼å­çš„é•¿åº¦ï¼Œæ˜¯æˆ¿é—´æ ¼å­è¾¹é•¿çš„ä¸¤å€
           
-          buckets = 11,        // Ò»¹²9ÖÖÑÕÉ«¼¶±ð
+          buckets = 11,        // ä¸€å…±9ç§é¢œè‰²çº§åˆ«
           colors = ["#5E4FA2","#3288BD","#66C2A5","#ABDDA4","#E6F598","#FFFFBF","#FEE08B","#FDAE61","#F46D43","#D53E4F","#9E0142"], 
           
           years = ["1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017"];
 
-           // ÉèÖÃroomHeatMap£¬svg
-		  var svg = d3.select("#skyline").append("svg") // Ñ¡Ôñ¡°roomHeatMap¡±£¨¾ÍÊÇdiv£©£¬¼ÓÈëÒ»¸ösvg£¬ÉèÖÃÊôÐÔ¸údivÒ»Ñù´ó
+           // è®¾ç½®roomHeatMapï¼Œsvg
+		  var svg = d3.select("#skyline").append("svg") // é€‰æ‹©â€œroomHeatMapâ€ï¼ˆå°±æ˜¯divï¼‰ï¼ŒåŠ å…¥ä¸€ä¸ªsvgï¼Œè®¾ç½®å±žæ€§è·Ÿdivä¸€æ ·å¤§
 			  .attr("width", width + margin.left + margin.right)
 			  .attr("height", height + margin.top + margin.bottom)
-			  .append("g")    // ÔÚsvgÄÚ¼ÓÈëÒ»¸ög£¨group×é£©£¬²¢ÉèÖÃÔªËØgµÄÏÔÊ¾Î»ÖÃ
+			  .append("g")    // åœ¨svgå†…åŠ å…¥ä¸€ä¸ªgï¼ˆgroupç»„ï¼‰ï¼Œå¹¶è®¾ç½®å…ƒç´ gçš„æ˜¾ç¤ºä½ç½®
 			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 			
-          // ¶ÁÈ¡ CSV ÎÄ¼þ,·¿¼äÄÚµÄÈËÊý´æ·ÅÓÚ´ËÎÄ¼þÖÐ
+          // è¯»å– CSV æ–‡ä»¶,æˆ¿é—´å†…çš„äººæ•°å­˜æ”¾äºŽæ­¤æ–‡ä»¶ä¸­
            /*d3.csv("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess_min_data.csv",          
             function(error, mindata) {                
               console.log(mindata);
 			  return mindata
 			})*/
-			d3.csv("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess2_min_data.csv",function (mindata) {
+
+			d3.text("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess2_min_data.csv", function(text) {
+  var data = d3.csvParseRows(text).map(function(row) {
+    return row.map(function(value) {
+      return +value;
+    });
+  });
+  console.log(data);
+});
+
+			d3.text("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess2_min_data.csv",function (mindata) {
 
     console.log(mindata);
-	d3.csv("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess2_max_data.csv",function (maxdata) {
+	d3.text("https://raw.githubusercontent.com/Do7and/VisHomework/main/preprocess2_max_data.csv",function (maxdata) {
     console.log(maxdata);
-	var x = d3.csvParseRows(mindata);
+	var x = d3.csvParse(mindata, function(d, i) {
+  return {
+   d
+  };
+});
 	console.log(x);
-		  // ÐÐ±êÌâ
+		  // è¡Œæ ‡é¢˜
 		  var dayLabels = svg.selectAll(".nameLabel")
 			  .data(mindata)
-			  .enter()    // ÎªdataÖÐÃ¿Ò»Ïî´´½¨Ò»¸ö".dayLabel"
-			  .append("text")    // ÎªdaysÖÐÃ¿Ò»Ïî´´½¨Ò»µÄ".dayLabel"Ìí¼ÓÎÄ±¾£¬ÏÂÃæÈ«ÊÇÉèÖÃÎÄ±¾µÄÊôÐÔ
+			  .enter()    // ä¸ºdataä¸­æ¯ä¸€é¡¹åˆ›å»ºä¸€ä¸ª".dayLabel"
+			  .append("text")    // ä¸ºdaysä¸­æ¯ä¸€é¡¹åˆ›å»ºä¸€çš„".dayLabel"æ·»åŠ æ–‡æœ¬ï¼Œä¸‹é¢å…¨æ˜¯è®¾ç½®æ–‡æœ¬çš„å±žæ€§
 				.text(function (d, i) { return mindata[i].month; })
 				.attr("x", 0)
 				.attr("y", function (d, i) { return i * (gridSize)-30; })
@@ -135,7 +149,7 @@
 						{ return ((i >= 0 && i <= 4) ? "nameLabel mono axis axis-workweek" : "nameLabel mono axis axis-worktime"); }
 					);
  
-		  // ÁÐ±êÌâ
+		  // åˆ—æ ‡é¢˜
 		  var timeLabels = svg.selectAll(".testLabel")
 			  .data(years)
 			  .enter().append("text")
@@ -148,7 +162,7 @@
 						return ( "testLabel mono axis"); }
 					 );
 		  
-			// Íø¸ñÊý×é,ÕâÀï½«¶þÎ¬Êý¾Ý×ª»»ÎªÒ»Î¬Êý×é£¬Ò»Î¬Êý×é·½±ãÓÚd3.js°ó¶¨
+			// ç½‘æ ¼æ•°ç»„,è¿™é‡Œå°†äºŒç»´æ•°æ®è½¬æ¢ä¸ºä¸€ç»´æ•°ç»„ï¼Œä¸€ç»´æ•°ç»„æ–¹ä¾¿äºŽd3.jsç»‘å®š
 			var minT = [];
 			var maxT = [];
 			for (var i = 0; i < 12; i++){
@@ -198,11 +212,11 @@
 		
 		  
 		  //console.log(minT);
-		  //»æÖÆ·¿¼ä¸ñ×Ó£¬Ò»¿ªÊ¼È«²¿ÊÇ°×É«
+		  //ç»˜åˆ¶æˆ¿é—´æ ¼å­ï¼Œä¸€å¼€å§‹å…¨éƒ¨æ˜¯ç™½è‰²
 		  var minsvg= d3.select("#temperatureHeatMapMIN").append("svg") // 
 			  .attr("width", width + margin.left + margin.right)
 			  .attr("height", height + margin.top + margin.bottom)
-			  .append("g")    // ÔÚsvgÄÚ¼ÓÈëÒ»¸ög£¨group×é£©£¬²¢ÉèÖÃÔªËØgµÄÏÔÊ¾Î»ÖÃ
+			  .append("g")    // åœ¨svgå†…åŠ å…¥ä¸€ä¸ªgï¼ˆgroupç»„ï¼‰ï¼Œå¹¶è®¾ç½®å…ƒç´ gçš„æ˜¾ç¤ºä½ç½®
 			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		  var minheatMap = minsvg.selectAll(".preprocess_min_data")
@@ -221,7 +235,7 @@
 		  var maxsvg= d3.select("#temperatureHeatMapMAX").append("svg") // 
 			  .attr("width", width + margin.left + margin.right)
 			  .attr("height", height + margin.top + margin.bottom)
-			  .append("g")    // ÔÚsvgÄÚ¼ÓÈëÒ»¸ög£¨group×é£©£¬²¢ÉèÖÃÔªËØgµÄÏÔÊ¾Î»ÖÃ
+			  .append("g")    // åœ¨svgå†…åŠ å…¥ä¸€ä¸ªgï¼ˆgroupç»„ï¼‰ï¼Œå¹¶è®¾ç½®å…ƒç´ gçš„æ˜¾ç¤ºä½ç½®
 			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		  var maxheatMap = maxsvg.selectAll(".preprocess_min_data")
@@ -239,13 +253,13 @@
 
 
 
-		  // ÑÕÉ«±ÈÀý³ß
-		  var colorScale = d3.scale.quantile()        // °´·ÖÎ»ÊýÈ¡Öµ£¬¿ÉÊ¹Ã¿¸öÇøÓòÄÚÔªËØ¸öÊýÏàµÈ
-			  .domain([d3.min(minT),d3.max(maxT)])  // ¶¨ÒåÓò
-			  // domain([0, n, Êý¾ÝµÄ×î´óÖµ]);
-			  .range(colors);    // ÖµÓò£ºÊÇÑÕÉ«Êý×é£¬º¯ÊýµÄ·µ»ØÖµÊÇ´ú±íÄ³ÖÖÑÕÉ«µÄ×Ö·û´®
+		  // é¢œè‰²æ¯”ä¾‹å°º
+		  var colorScale = d3.scale.quantile()        // æŒ‰åˆ†ä½æ•°å–å€¼ï¼Œå¯ä½¿æ¯ä¸ªåŒºåŸŸå†…å…ƒç´ ä¸ªæ•°ç›¸ç­‰
+			  .domain([d3.min(minT),d3.max(maxT)])  // å®šä¹‰åŸŸ
+			  // domain([0, n, æ•°æ®çš„æœ€å¤§å€¼]);
+			  .range(colors);    // å€¼åŸŸï¼šæ˜¯é¢œè‰²æ•°ç»„ï¼Œå‡½æ•°çš„è¿”å›žå€¼æ˜¯ä»£è¡¨æŸç§é¢œè‰²çš„å­—ç¬¦ä¸²
 			
-		  // duration(n) ÔÚnºÁÃëÄÚ¸ù¾Ý·¿¼äÄÚÈËÊýÎª·¿¼ä¸ñ×ÓÉÏÉ«
+		  // duration(n) åœ¨næ¯«ç§’å†…æ ¹æ®æˆ¿é—´å†…äººæ•°ä¸ºæˆ¿é—´æ ¼å­ä¸Šè‰²
 		  minheatMap.transition().duration(2000)
 			  .style("fill", function(d) { 
 				  if (isNaN(d)){
@@ -257,7 +271,7 @@
 			  });
 
 
-			 // duration(n) ÔÚnºÁÃëÄÚ¸ù¾Ý·¿¼äÄÚÈËÊýÎª·¿¼ä¸ñ×ÓÉÏÉ«
+			 // duration(n) åœ¨næ¯«ç§’å†…æ ¹æ®æˆ¿é—´å†…äººæ•°ä¸ºæˆ¿é—´æ ¼å­ä¸Šè‰²
 		  maxheatMap.transition().duration(2000)
 			  .style("fill", function(d) { 
 				  if (isNaN(d)){
@@ -268,15 +282,15 @@
 				  return colorScale(d);
 			  });
 			
-		  // Êó±êÍ£ÁôÔÚ·¿¼ä¸ñ×ÓÉÏÊ±ÏÔÊ¾ÈËÊý
-		  minheatMap.append("title").text(function(d,i) { return (i % 21+1997)+"Äê"+(parseInt(i / 21)+1)+"ÔÂ×îµÍÆøÎÂÎª"+d+"¡æ"; });
-			// Êó±êÍ£ÁôÔÚ·¿¼ä¸ñ×ÓÉÏÊ±ÏÔÊ¾ÈËÊý
-		  maxheatMap.append("title").text(function(d,i) { return (i % 21+1997)+"Äê"+(parseInt(i / 21)+1)+"ÔÂ×î¸ßÆøÎÂÎª"+d+"¡æ"; });
+		  // é¼ æ ‡åœç•™åœ¨æˆ¿é—´æ ¼å­ä¸Šæ—¶æ˜¾ç¤ºäººæ•°
+		  minheatMap.append("title").text(function(d,i) { return (i % 21+1997)+"å¹´"+(parseInt(i / 21)+1)+"æœˆæœ€ä½Žæ°”æ¸©ä¸º"+d+"â„ƒ"; });
+			// é¼ æ ‡åœç•™åœ¨æˆ¿é—´æ ¼å­ä¸Šæ—¶æ˜¾ç¤ºäººæ•°
+		  maxheatMap.append("title").text(function(d,i) { return (i % 21+1997)+"å¹´"+(parseInt(i / 21)+1)+"æœˆæœ€é«˜æ°”æ¸©ä¸º"+d+"â„ƒ"; });
 			  
 		  
-		  // Í¼Àý
+		  // å›¾ä¾‹
 		  var legend = svg.selectAll(".legend")
-			  //[0].concat(colorScale.quantiles())½«Êý×é[0]Óëº¬ÓÐ£¸¸öÔªËØµÄolorScale.quantiles()Á¬½ÓÆðÀ´µÃµ½Ò»¸öÓÐ£¹¸öÔªËØµÄÊý×é
+			  //[0].concat(colorScale.quantiles())å°†æ•°ç»„[0]ä¸Žå«æœ‰ï¼˜ä¸ªå…ƒç´ çš„olorScale.quantiles()è¿žæŽ¥èµ·æ¥å¾—åˆ°ä¸€ä¸ªæœ‰ï¼™ä¸ªå…ƒç´ çš„æ•°ç»„
 			  .data([0].concat(colorScale.quantiles()), function(d) {
 			   return d;
 				})    
@@ -293,7 +307,7 @@
 		  legend.append("text")
 			.attr("class", "mono")
 			.text(function(d) { 
-			  return ""+Math.round(d)+"¡æ";
+			  return ""+Math.round(d)+"â„ƒ";
 			   })
 			.attr("x", function(d, i) { return legendElementWidth * i+20; })
 			.attr("y", 13 * gridSize+30);
@@ -301,16 +315,16 @@
 	});
     </script>
     <script>
-¡¡¡¡¡¡¡¡¡¡//»ñÈ¡Ò³ÃæµÄÃ¿¸ö°´Å¥
+ã€€ã€€ã€€ã€€ã€€//èŽ·å–é¡µé¢çš„æ¯ä¸ªæŒ‰é’®
         var btns = document.getElementsByClassName("btn")
-¡¡¡¡¡¡¡¡¡¡//»ñÈ¡ÄÚÈÝºÐ×Ó
+ã€€ã€€ã€€ã€€ã€€//èŽ·å–å†…å®¹ç›’å­
         var contents = document.getElementsByClassName("content")
 
-¡¡¡¡¡¡¡¡¡¡//±éÀúÃ¿¸ö°´Å¥ÎªÆäÌí¼Óµã»÷ÊÂ¼þ
+ã€€ã€€ã€€ã€€ã€€//éåŽ†æ¯ä¸ªæŒ‰é’®ä¸ºå…¶æ·»åŠ ç‚¹å‡»äº‹ä»¶
         for(var i=0;i<btns.length;i++){
             btns[i].index = i;
             btns[i].onclick = function(){
-¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡//¶Ôµ±Ç°µã»÷µÄ°´Å¥¸³ÓèactiveÀàÃû¼°ÏÔÊ¾µ±Ç°°´Å¥¶ÔÓ¦µÄÄÚÈÝ
+ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€//å¯¹å½“å‰ç‚¹å‡»çš„æŒ‰é’®èµ‹äºˆactiveç±»ååŠæ˜¾ç¤ºå½“å‰æŒ‰é’®å¯¹åº”çš„å†…å®¹
                 for(var j=0;j<btns.length;j++){
                     btns[j].className = btns[j].className.replace(' active', '').trim();
                     contents[j].className = contents[j].className.replace(' show', '').trim();
