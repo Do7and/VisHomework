@@ -151,7 +151,14 @@
 						return ( "testLabel mono axis"); }
 					 );
 		  
-		
+		    var x = d3.scale.linear()
+    .domain(d3.extent(min2data, function(d) { return d.day; }))
+    .range([ 2, gridSize /4]);
+			var y = d3.scale.linear()
+    .domain([0, d3.max(min2data, function(d) { return +d.temperature; })])
+    .range([ gridSize/3,2]);
+
+
 			var min2T = d3.nest() // nest function allows to group the calculation per level of a factor
 			.key(function(d) { return d.yearmon;})
 			.entries(min2data);
@@ -167,18 +174,33 @@
 			  .append("g")    // 在svg内加入一个g（group组），并设置元素g的显示位置
 			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+		
 		  var minheatMap = minsvg.selectAll(".preprocess_min_data")
 			  .data(min2T)
-			  .enter()        
+			  .enter()
 			  .append("rect")
-			  .attr("x", function(d){ return ((d.key-1) % 10)*gridSize;})
-			  .attr("y", function(d){ return parseInt((d.key-1) / 10) *(gridSize/2);})
+			  .attr("x", function(d){ return parseInt(d.key / 12)*gridSize;})
+			  .attr("y", function(d){ return  (d.key % 12)*(gridSize/2);})
 			  .attr("rx", 2)
 			  .attr("ry", 2)
 			  .attr("class", "bordered")
 			  .attr("width", gridInnerSize)
 			  .attr("height", gridInnerSize/2)
-			  .style("fill", "#FFFFFF");
+			  .style("fill", "#FFFFFF")
+			  
+		var minpath = minsvg.selectAll(".paths")
+.data(min2T)
+.enter()
+.append("path")
+		.attr("fill", "none")
+      .attr("stroke", function(d){ return "#A9F5F2" })
+      .attr("stroke-width", 1.6)
+      .attr("d", function(d){
+        return d3.svg.line()
+		.x(function(d) { return x(d.day)+parseInt(d.yearmon / 12)*gridSize; })
+          .y(function(d) { return y(+d.temperature)+(d.yearmon % 12)*(gridSize/2)+10; })
+          (d.values)
+});
 
 		  var maxsvg= d3.select("#temperatureHeatMapMAX").append("svg") // 
 			  .attr("width", width + margin.left + margin.right)
@@ -190,8 +212,8 @@
 			  .data(max2T)
 			  .enter()        
 			  .append("rect")
-			  .attr("x", function(d){ return ((d.key-1) % 10)*gridSize;})
-			  .attr("y", function(d){ return parseInt((d.key-1) / 10)*(gridSize/2);})
+			  .attr("x", function(d){ return parseInt(d.key / 12)*gridSize;})
+			  .attr("y", function(d){ return (d.key % 12)*(gridSize/2);})
 			  .attr("rx", 2)
 			  .attr("ry", 2)
 			  .attr("class", "bordered")
@@ -199,32 +221,45 @@
 			  .attr("height", gridInnerSize/2)
 			  .style("fill", "#FFFFFF");
 			
-				   
-			// 网格数组,这里将二维数据转换为一维数组，一维数组方便于d3.js绑定
-			var minT = [];
-			var maxT = [];
-			for (var i = 0; i < 12; i++){
-				minT[i*10] = parseInt(mindata[i].Y2008);
-				minT[i*10+1] = parseInt(mindata[i].Y2009);
-				minT[i*10+2] = parseInt(mindata[i].Y2010);
-				minT[i*10+3] = parseInt(mindata[i].Y2011);
-				minT[i*10+4] = parseInt(mindata[i].Y2012);
-				minT[i*10+5] = parseInt(mindata[i].Y2013);
-				minT[i*10+6] = parseInt(mindata[i].Y2014);
-				minT[i*10+7] = parseInt(mindata[i].Y2015);
-				minT[i*10+8] = parseInt(mindata[i].Y2016);
-				minT[i*10+9] = parseInt(mindata[i].Y2017);
+				  		var maxpath = maxsvg.selectAll(".paths")
+.data(max2T)
+.enter()
+.append("path")
+		.attr("fill", "none")
+      .attr("stroke", function(d){ return "#01DFD7" })
+      .attr("stroke-width", 1.6)
+      .attr("d", function(d){
+        return d3.svg.line()
+		.x(function(d) { return x(d.day)+parseInt(d.yearmon / 12)*gridSize; })
+          .y(function(d) { return y(+d.temperature)+(d.yearmon % 12)*(gridSize/2)+10; })
+          (d.values)
+});
 
-				maxT[i*10] = parseInt(maxdata[i].Y2008);
-				maxT[i*10+1] = parseInt(maxdata[i].Y2009);
-				maxT[i*10+2] = parseInt(maxdata[i].Y2010);
-				maxT[i*10+3] = parseInt(maxdata[i].Y2011);
-				maxT[i*10+4] = parseInt(maxdata[i].Y2012);
-				maxT[i*10+5] = parseInt(maxdata[i].Y2013);
-				maxT[i*10+6] = parseInt(maxdata[i].Y2014);
-				maxT[i*10+7] = parseInt(maxdata[i].Y2015);
-				maxT[i*10+8] = parseInt(maxdata[i].Y2016);
-				maxT[i*10+9] = parseInt(maxdata[i].Y2017);
+			// 网格数组,这里将二维数据转换为一维数组，一维数组方便于d3.js绑定
+			var minT = new Array(120);
+			var maxT =  new Array(120);
+			for (var i = 0; i < 12; i++){
+				minT[i] = parseInt(mindata[i].Y2008);
+				minT[i+12*1] = parseInt(mindata[i].Y2009);
+				minT[i+12*2] = parseInt(mindata[i].Y2010);
+				minT[i+12*3] = parseInt(mindata[i].Y2011);
+				minT[i+12*4] = parseInt(mindata[i].Y2012);
+				minT[i+12*5] = parseInt(mindata[i].Y2013);
+				minT[i+12*6] = parseInt(mindata[i].Y2014);
+				minT[i+12*7] = parseInt(mindata[i].Y2015);
+				minT[i+12*8] = parseInt(mindata[i].Y2016);
+				minT[i+12*9] = parseInt(mindata[i].Y2017);
+
+				maxT[i+12*0] = parseInt(maxdata[i].Y2008);
+				maxT[i+12*1] = parseInt(maxdata[i].Y2009);
+				maxT[i+12*2] = parseInt(maxdata[i].Y2010);
+				maxT[i+12*3] = parseInt(maxdata[i].Y2011);
+				maxT[i+12*4] = parseInt(maxdata[i].Y2012);
+				maxT[i+12*5] = parseInt(maxdata[i].Y2013);
+				maxT[i+12*6] = parseInt(maxdata[i].Y2014);
+				maxT[i+12*7] = parseInt(maxdata[i].Y2015);
+				maxT[i+12*8] = parseInt(maxdata[i].Y2016);
+				maxT[i+12*9] = parseInt(maxdata[i].Y2017);
 		  };
 
 		  // 颜色比例尺
@@ -245,7 +280,6 @@
 				  return colorScale(minT[i]);
 			  });
 
-
 			 // duration(n) 在n毫秒内根据房间内人数为房间格子上色
 		  maxheatMap.transition().duration(2000)
 			  .style("fill", function(d,i) { 
@@ -258,9 +292,9 @@
 			  });
 			
 		  // 鼠标停留在房间格子上时显示人数
-		  minheatMap.append("title").text(function(d,i) { return (i % 10+2008)+"年"+(parseInt(i / 10)+1)+"月最低气温为"+minT[i]+"℃"; });
+		  minheatMap.append("title").text(function(d,i) { return (parseInt(i / 12)+2008)+"年"+(i % 12+1)+"月最低气温为"+minT[i]+"℃"; });
 			// 鼠标停留在房间格子上时显示人数
-		  maxheatMap.append("title").text(function(d,i) { return (i % 10+2008)+"年"+(parseInt(i / 10)+1)+"月最高气温为"+maxT[i]+"℃"; });
+		  maxheatMap.append("title").text(function(d,i) { return (parseInt(i / 12)+2008)+"年"+(i % 12+1)+"月最高气温为"+maxT[i]+"℃"; });
 			  
 		  
 		  // 图例
