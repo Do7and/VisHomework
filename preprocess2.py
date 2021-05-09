@@ -9,7 +9,7 @@ nowyr = None
 nowmon = None
 for index, row in csv_data.iterrows():
 	year,mon,day = map(int,row["date"].split("-"))
-	if year < 2017:
+	if year <= 2007:
 		continue
 	tmin = int(row["min_temperature"])
 	tmax = int(row["max_temperature"])
